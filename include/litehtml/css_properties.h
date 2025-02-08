@@ -52,6 +52,7 @@ namespace litehtml
 		css_length				m_font_weight;
 		font_style				m_font_style;
 		string					m_text_decoration;
+		string					m_text_emphasis;
 		font_metrics			m_font_metrics;
 		text_transform			m_text_transform;
 		web_color				m_color;

@@ -426,6 +426,7 @@ void style::add_property(string_id name, const css_token_vector& value, const st
 		break;
 
 	case _text_decoration_:
+	case _text_emphasis_:
 		str = get_repr(value, 0, -1, true);
 		add_parsed_property(name, property_value(str, important));
 		break;

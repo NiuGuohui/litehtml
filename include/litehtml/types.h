@@ -54,6 +54,8 @@ namespace litehtml
 	const unsigned int font_decoration_underline	= 0x01;
 	const unsigned int font_decoration_linethrough	= 0x02;
 	const unsigned int font_decoration_overline		= 0x04;
+	const unsigned int font_decoration_wavy		    = 0x08;
+	const unsigned int font_decoration_emphasis		= 0x10;
 
 	using byte = unsigned char;
 	using ucode_t = unsigned int;

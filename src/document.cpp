@@ -441,7 +441,7 @@ element::ptr document::create_element(const char* tag_name, const string_map& at
 	return newTag;
 }
 
-uint_ptr document::add_font( const char* name, int size, const char* weight, const char* style, const char* decoration, font_metrics* fm )
+uint_ptr document::add_font( const char* name, int size, const char* weight, const char* style, const char* decoration, const char *emphasis, font_metrics* fm )
 {
 	uint_ptr ret = 0;
 
@@ -462,6 +462,8 @@ uint_ptr document::add_font( const char* name, int size, const char* weight, con
 	key += style;
 	key += ":";
 	key += decoration;
+  key += ":";
+  key += emphasis;
 
 	if(m_fonts.find(key) == m_fonts.end())
 	{
@@ -495,6 +497,17 @@ uint_ptr document::add_font( const char* name, int size, const char* weight, con
 
 		unsigned int decor = 0;
 
+    if (emphasis) 
+    {
+      std::vector<string> tokens;
+      split_string(emphasis, tokens, " ");
+      for (auto &token: tokens) {
+        if (!t_strcasecmp(token.c_str(), "filled")) {
+          decor |= font_decoration_emphasis;
+        }
+      }
+    }
+
 		if(decoration)
 		{
 			std::vector<string> tokens;
@@ -510,7 +523,9 @@ uint_ptr document::add_font( const char* name, int size, const char* weight, con
 				} else if(!t_strcasecmp(token.c_str(), "overline"))
 				{
 					decor |= font_decoration_overline;
-				}
+				} else if (!t_strcasecmp(token.c_str(), "wavy")) {
+          decor |= font_decoration_wavy;
+        }
 			}
 		}
 
@@ -527,7 +542,7 @@ uint_ptr document::add_font( const char* name, int size, const char* weight, con
 	return ret;
 }
 
-uint_ptr document::get_font( const char* name, int size, const char* weight, const char* style, const char* decoration, font_metrics* fm )
+uint_ptr document::get_font( const char* name, int size, const char* weight, const char* style, const char* decoration, const char *emphasis, font_metrics* fm )
 {
 	if(!size)
 	{
@@ -550,6 +565,8 @@ uint_ptr document::get_font( const char* name, int size, const char* weight, con
 	key += style;
 	key += ":";
 	key += decoration;
+  key += ":";
+  key += emphasis;
 
 	auto el = m_fonts.find(key);
 
@@ -561,7 +578,7 @@ uint_ptr document::get_font( const char* name, int size, const char* weight, con
 		}
 		return el->second.font;
 	}
-	return add_font(name, size, weight, style, decoration, fm);
+	return add_font(name, size, weight, style, decoration, emphasis, fm);
 }
 
 int document::render( int max_width, render_type rt )

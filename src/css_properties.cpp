@@ -358,6 +358,7 @@ void litehtml::css_properties::compute_font(const html_tag* el, const document::
 	m_font_weight		=              el->get_property<css_length>(_font_weight_,		true, css_length::predef_value(font_weight_normal), offset(m_font_weight));
 	m_font_style		= (font_style) el->get_property<int>(       _font_style_,		true, font_style_normal,							offset(m_font_style));
 	m_text_decoration	=              el->get_property<string>(    _text_decoration_,	true, "none",										offset(m_text_decoration));
+  m_text_emphasis	  =              el->get_property<string>(_text_emphasis_,     true, "none",										offset(m_text_emphasis));
 
   // Merge parent text decoration with child text decoration
   if (el->parent())
@@ -387,6 +388,7 @@ void litehtml::css_properties::compute_font(const html_tag* el, const document::
 		m_font_weight.is_predefined() ? index_value(m_font_weight.predef(), font_weight_strings).c_str() : std::to_string(m_font_weight.val()).c_str(),
 		index_value(m_font_style, font_style_strings).c_str(),
 		m_text_decoration.c_str(), 
+    m_text_emphasis.c_str(),
 		&m_font_metrics);
 }
 
