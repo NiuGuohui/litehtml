@@ -39,6 +39,7 @@ std::map<string_id, string> style::m_valid_values =
 	{ _font_style_, font_style_strings },
 	{ _font_variant_, font_variant_strings },
 	{ _font_weight_, font_weight_strings },
+	{ _text_decoration_style_, text_decoration_style_strings },
 
 	{ _list_style_type_, list_style_type_strings },
 	{ _list_style_position_, list_style_position_strings },
@@ -205,6 +206,7 @@ void style::add_property(string_id name, const css_token_vector& value, const st
 
 	case _font_style_:
 	case _font_variant_:
+	case _text_decoration_style_:
 
 	case _list_style_type_:
 	case _list_style_position_:

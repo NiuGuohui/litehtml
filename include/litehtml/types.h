@@ -54,8 +54,6 @@ namespace litehtml
 	const unsigned int font_decoration_underline	= 0x01;
 	const unsigned int font_decoration_linethrough	= 0x02;
 	const unsigned int font_decoration_overline		= 0x04;
-	const unsigned int font_decoration_wavy		    = 0x08;
-	const unsigned int font_decoration_emphasis		= 0x10;
 
 	using byte = unsigned char;
 	using ucode_t = unsigned int;
@@ -324,6 +322,22 @@ namespace litehtml
 		}
 	};
 
+	enum text_emphasis
+	{
+	  text_emphasis_none,
+	  text_emphasis_filled,
+	  text_emphasis_dot,
+	  text_emphasis_triangle,
+	};
+
+	enum text_decoration
+	{
+	  decoration_none = 0x00,
+	  decoration_underline = 0x01,
+	  decoration_line_through = 0x02,
+	  decoration_overline = 0x04,
+	};
+
 #define  style_display_strings		"none;block;inline;inline-block;inline-table;list-item;table;table-caption;table-cell;table-column;table-column-group;table-footer-group;table-header-group;table-row;table-row-group;inline-text;flex;inline-flex"
 
 	enum style_display
@@ -396,6 +410,17 @@ namespace litehtml
 		font_weight_bold,
 		font_weight_bolder,
 		font_weight_lighter,
+	};
+
+#define  text_decoration_style_strings	"solid;dashed;dotted;double;wavy"
+
+	enum text_decoration_style
+	{
+        decoration_style_solid,
+        decoration_style_dashed,
+        decoration_style_dotted,
+        decoration_style_double,
+        decoration_style_wavy,
 	};
 
 #define  list_style_type_strings	"none;circle;disc;square;armenian;cjk-ideographic;decimal;decimal-leading-zero;georgian;hebrew;hiragana;hiragana-iroha;katakana;katakana-iroha;lower-alpha;lower-greek;lower-latin;lower-roman;upper-alpha;upper-latin;upper-roman"

@@ -269,6 +269,35 @@ static const int font_size_table[8][7] =
 		{ 9,   10,    13,    16,    18,    24,    32}
 };
 
+int transform_font_weight(const litehtml::css_length &weight)
+{
+	std::string str_weight = weight.is_predefined() ? litehtml::index_value(weight.predef(), font_weight_strings).c_str() : std::to_string(weight.val()).c_str();
+	int	fw = litehtml::value_index(str_weight, font_weight_strings, -1);
+	if(fw >= 0)
+	{
+		switch(fw)
+		{
+		case litehtml::font_weight_bold:
+		  	fw = 700;
+		  	break;
+		case litehtml::font_weight_bolder:
+			fw = 600;
+			break;
+		case litehtml::font_weight_lighter:
+			fw = 300;
+			break;
+		case litehtml::font_weight_normal:
+			fw = 400;
+			break;
+		}
+	} else
+	{
+		fw = atoi(str_weight.c_str());
+		if(fw < 100) fw = 400;
+	}
+	return fw;
+}
+
 void litehtml::css_properties::compute_font(const html_tag* el, const document::ptr& doc)
 {
 	// initialize font size
@@ -284,7 +313,7 @@ void litehtml::css_properties::compute_font(const html_tag* el, const document::
 	{
 		parent_sz = doc_font_size;
 	}
-	
+
 	int font_size = parent_sz;
 
 	if(sz.is_predefined())
@@ -350,46 +379,89 @@ void litehtml::css_properties::compute_font(const html_tag* el, const document::
 			font_size = doc->to_pixels(sz, fm, 0);
 		}
 	}
-	
+
 	m_font_size = (float)font_size;
 
 	// initialize font
-	m_font_family		=              el->get_property<string>(    _font_family_,		true, doc->container()->get_default_font_name(),	offset(m_font_family));
+	m_font_family		=              el->get_property<string>(    _font_family_,		true, doc->container()->get_default_font_name(), offset(m_font_family));
 	m_font_weight		=              el->get_property<css_length>(_font_weight_,		true, css_length::predef_value(font_weight_normal), offset(m_font_weight));
-	m_font_style		= (font_style) el->get_property<int>(       _font_style_,		true, font_style_normal,							offset(m_font_style));
-	m_text_decoration	=              el->get_property<string>(    _text_decoration_,	true, "none",										offset(m_text_decoration));
-  m_text_emphasis	  =              el->get_property<string>(_text_emphasis_,     true, "none",										offset(m_text_emphasis));
+	m_font_style		= (font_style) el->get_property<int>(       _font_style_,			true, font_style_normal,						 offset(m_font_style));
+	m_text_emphasis	    =			   el->get_property<string>(	_text_emphasis_,    	true, "none",									 offset(m_text_emphasis));
+	m_text_decoration	=			   el->get_property<string>(	_text_decoration_,	true, "none",									 offset(m_text_decoration));
+	m_text_decoration_style	= (text_decoration_style) el->get_property<int>(_text_decoration_style_,	false, decoration_style_solid,		 offset(m_text_decoration_style));
 
-  // Merge parent text decoration with child text decoration
-  if (el->parent())
-  {
-    auto parent_text_decoration = el->parent()->css().m_text_decoration;
-    if (!parent_text_decoration.empty() && !m_text_decoration.empty())
-    {
-      std::set<string> wordSet;
-      std::istringstream stream(parent_text_decoration + " " + m_text_decoration);
-      std::string temp;
+    // Merge parent text decoration with child text decoration
+//    if (el->parent())
+//    {
+//      auto parent_text_decoration = el->parent()->css().m_text_decoration;
+//      if (!parent_text_decoration.empty() && !m_text_decoration.empty())
+//      {
+//        std::set<string> wordSet;
+//        std::istringstream stream(parent_text_decoration + " " + m_text_decoration);
+//        std::string temp;
+//
+//        while (stream >> temp) wordSet.insert(temp);
+//        if (wordSet.size() > 1)
+//        {
+//          wordSet.erase("none");
+//        }
+//        m_text_decoration = "";
+//        for (const auto& word : wordSet) {
+//          m_text_decoration += word + " ";
+//        }
+//      }
+//    }
+	auto info = font_info();
+	info.size = font_size;
+	info.font_style = m_font_style;
+	info.decoration_style = m_text_decoration_style;
+	info.weight = transform_font_weight(m_font_weight);
 
-      while (stream >> temp) wordSet.insert(temp);
-      if (wordSet.size() > 1)
-      {
-        wordSet.erase("none");
-      }
-      m_text_decoration = "";
-      for (const auto& word : wordSet) {
-        m_text_decoration += word + " ";
-      }
-    }
-  }
-  
-	m_font = doc->get_font(
-		m_font_family.c_str(), 
-		font_size, 
-		m_font_weight.is_predefined() ? index_value(m_font_weight.predef(), font_weight_strings).c_str() : std::to_string(m_font_weight.val()).c_str(),
-		index_value(m_font_style, font_style_strings).c_str(),
-		m_text_decoration.c_str(), 
-    m_text_emphasis.c_str(),
-		&m_font_metrics);
+	if(t_strcasecmp(m_text_decoration.c_str(), "none"))
+	{
+	  std::vector<string> tokens;
+	  split_string(m_text_decoration, tokens, " ");
+	  for(auto & token : tokens)
+	  {
+		// text-decoration-line
+		if(!t_strcasecmp(token.c_str(), "underline")){
+		  info.decoration |= decoration_underline;
+		} else if(!t_strcasecmp(token.c_str(), "line-through")){
+		  info.decoration |= decoration_line_through;
+		} else if(!t_strcasecmp(token.c_str(), "overline")){
+		  info.decoration |= decoration_overline;
+		}
+		// text-decoration-style
+		else if (!t_strcasecmp(token.c_str(), "wavy")) {
+		  info.decoration_style = decoration_style_wavy;
+		} else if (!t_strcasecmp(token.c_str(), "dashed")) {
+		  info.decoration_style = decoration_style_dashed;
+		} else if (!t_strcasecmp(token.c_str(), "dotted")) {
+		  info.decoration_style = decoration_style_dotted;
+		} else if (!t_strcasecmp(token.c_str(), "double")) {
+		  info.decoration_style = decoration_style_double;
+		}
+	  }
+	}
+
+	if (t_strcasecmp(m_text_emphasis.c_str(), "none"))
+	{
+	  std::vector<string> tokens;
+	  split_string(m_text_emphasis, tokens, " ");
+	  for (auto &token: tokens) {
+		if (!t_strcasecmp(token.c_str(), "filled")) {
+		  info.emphasis = text_emphasis_filled;
+		} else if (!t_strcasecmp(token.c_str(), "dot")) {
+		  info.emphasis = text_emphasis_dot;
+		} else if (!t_strcasecmp(token.c_str(), "triangle")) {
+		  info.emphasis = text_emphasis_triangle;
+		} else {
+		  info.emphasis = text_emphasis_none;
+		}
+	  }
+	}
+
+	m_font = doc->get_font(m_font_family.c_str(), info, &m_font_metrics);
 }
 
 void litehtml::css_properties::compute_background(const html_tag* el, const document::ptr& doc)

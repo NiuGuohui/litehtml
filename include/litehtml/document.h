@@ -73,7 +73,7 @@ namespace litehtml
 
 		document_container*				container()	{ return m_container; }
 		document_mode					mode() const { return m_mode; }
-		uint_ptr						get_font(const char* name, int size, const char* weight, const char* style, const char* decoration, const char *emphasis, font_metrics* fm);
+		uint_ptr						get_font(const char* name, const font_info &fontInfo, font_metrics* fm);
 		int								render(int max_width, render_type rt = render_all);
 		void							draw(uint_ptr hdc, int x, int y, const position* clip);
 		web_color						get_def_color()	{ return m_def_color; }
@@ -111,7 +111,7 @@ namespace litehtml
 			const string&        user_styles = "");
 	
 	private:
-		uint_ptr	add_font(const char* name, int size, const char* weight, const char* style, const char* decoration, const char *emphasis, font_metrics* fm);
+		uint_ptr	add_font(const char* name, const font_info &fontInfo, font_metrics* fm);
 
 		GumboOutput* parse_html(estring str);
 		void create_node(void* gnode, elements_list& elements, bool parseTextNode);

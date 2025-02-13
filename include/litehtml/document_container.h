@@ -22,18 +22,36 @@ namespace litehtml
 		int				index;
 		uint_ptr		font;
 	};
-	
+
 	enum mouse_event
 	{
 		mouse_event_enter,
 		mouse_event_leave,
 	};
 
+    struct font_info {
+        int size;
+        int weight;
+        font_style font_style;
+        text_emphasis emphasis;
+        unsigned int decoration;
+        text_decoration_style decoration_style;
+
+		string to_string() const {
+		  return std::to_string(size) + ":"
+				 + std::to_string(weight) + ":"
+				 + std::to_string(font_style) + ":"
+				 + std::to_string(emphasis) + ":"
+				 + std::to_string(decoration) + ":"
+				 + std::to_string(decoration_style);
+		}
+    };
+
 	// call back interface to draw text, images and other elements
 	class document_container
 	{
 	public:
-		virtual litehtml::uint_ptr	create_font(const char* faceName, int size, int weight, litehtml::font_style italic, unsigned int decoration, litehtml::font_metrics* fm) = 0;
+		virtual litehtml::uint_ptr	create_font(const char* faceName, const font_info& fontInfo, litehtml::font_metrics* fm) = 0;
 		virtual void				delete_font(litehtml::uint_ptr hFont) = 0;
 		virtual int					text_width(const char* text, litehtml::uint_ptr hFont) = 0;
 		virtual void				draw_text(litehtml::uint_ptr hdc, const char* text, litehtml::uint_ptr hFont, litehtml::web_color color, const litehtml::position& pos) = 0;
