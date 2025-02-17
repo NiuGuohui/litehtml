@@ -390,27 +390,28 @@ void litehtml::css_properties::compute_font(const html_tag* el, const document::
 	m_text_decoration	=			   el->get_property<string>(	_text_decoration_,	true, "none",									 offset(m_text_decoration));
 	m_text_decoration_style	= (text_decoration_style) el->get_property<int>(_text_decoration_style_,	false, decoration_style_solid,		 offset(m_text_decoration_style));
 
-    // Merge parent text decoration with child text decoration
-//    if (el->parent())
-//    {
-//      auto parent_text_decoration = el->parent()->css().m_text_decoration;
-//      if (!parent_text_decoration.empty() && !m_text_decoration.empty())
-//      {
-//        std::set<string> wordSet;
-//        std::istringstream stream(parent_text_decoration + " " + m_text_decoration);
-//        std::string temp;
-//
-//        while (stream >> temp) wordSet.insert(temp);
-//        if (wordSet.size() > 1)
-//        {
-//          wordSet.erase("none");
-//        }
-//        m_text_decoration = "";
-//        for (const auto& word : wordSet) {
-//          m_text_decoration += word + " ";
-//        }
-//      }
-//    }
+	// Merge parent text decoration with child text decoration
+	if (el->parent())
+	{
+		auto parent_text_decoration = el->parent()->css().m_text_decoration;
+		if (!parent_text_decoration.empty() && !m_text_decoration.empty())
+		{
+			std::set<string> wordSet;
+			std::istringstream stream(parent_text_decoration + " " + m_text_decoration);
+			std::string temp;
+
+			while (stream >> temp) wordSet.insert(temp);
+			if (wordSet.size() > 1)
+			{
+				wordSet.erase("none");
+			}
+			m_text_decoration = "";
+			for (const auto& word : wordSet) {
+				m_text_decoration += word + " ";
+			}
+			wordSet.clear();
+		}
+	}
 	auto info = font_info();
 	info.size = font_size;
 	info.font_style = m_font_style;
